@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sec="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+    
+    <!-- data source -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost/actionvox" />
+		<property name="username" value="root" />
+		<property name="password" value="502010" />
+    </bean>
+    
+	
+     <sec:http auto-config="true"   access-denied-page="/negado.jsp">
+    	<sec:form-login login-page="/identificacao-audio.jsp" default-target-url="/audiodescricao/index.jsp" authentication-failure-url="/erro-login-audio.jsp" />
+    	<sec:form-login login-page="/identificacao-semaudio.jsp" default-target-url="/sem-audio/index.jsp" authentication-failure-url="/erro-login-semaudio.jsp" />
+    	<sec:intercept-url pattern="/audiodescricao/**" access="ROLE_AUDIO" />
+    	<sec:intercept-url pattern="/sem-audio/**" access="ROLE_SEMAUDIO" />
+    	<sec:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+	</sec:http>
+	
+   <!--entry-point-ref="loginUrlAuthenticationEntryPoint"
+     <bean id="loginUrlAuthenticationEntryPoint"
+      	class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+   		<property name="loginFormUrl" value="/identificacao-audio.jsp"/>
+	 </bean>-->
+     
+ 	
+    <sec:authentication-manager>
+    	<sec:authentication-provider>
+        	<sec:jdbc-user-service data-source-ref="dataSource" 
+            users-by-username-query="SELECT cpf, localizador, 'true' as enable FROM passageiro  WHERE cpf=?"
+            authorities-by-username-query="SELECT cpf, permissao FROM passageiro WHERE cpf=?" />
+    	</sec:authentication-provider>
+	</sec:authentication-manager>
+    
+</beans>
